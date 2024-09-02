@@ -1,8 +1,29 @@
 #include "base64_helper.h"
+#include "vec3.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 #define CHUNK_SIZE 4096
+
+vec3 frag_color(vec3 uv) {
+    uv = subtract(uv, ((vec3){.5, .5, .0}));
+
+    float d = length(uv);
+
+    float c = .0;
+    if (d < .3) {
+        c = 0.0;
+    } else {
+        c = 1.;
+    }
+
+    vec3 color;
+    color.x = c;
+    color.y = c;
+    color.z = c;
+
+    return color;
+}
 
 int main() {
 
@@ -16,9 +37,18 @@ int main() {
     for (int y = 0; y < h; y += 1) {
         for (int x = 0; x < w; x += 1) {
 
-            ptr[0] = ((float)x / ((float)w - 1)) * 256;
-            ptr[1] = ((float)y / ((float)h - 1)) * 256;
-            ptr[2] = 0;
+            vec3 uv;
+            uv.x = ((float)x / ((float)w - 1.0));
+            uv.y = ((float)y / ((float)h - 1.0));
+            uv.z = 0.0;
+
+            vec3 color = frag_color(uv);
+
+            clamp01(&color);
+
+            ptr[0] = color.x * 255.999;
+            ptr[1] = color.y * 255.999;
+            ptr[2] = color.z * 255.999;
 
             ptr += 3;
         }
