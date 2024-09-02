@@ -58,24 +58,3 @@ vec3 normalize(vec3 v) {
 
     return result;
 }
-
-void clamp01(vec3 *v) {
-    if (v->x < 0.0) {
-        v->x = 0.0;
-    }
-    if (v->x > 1.0) {
-        v->x = 1.0;
-    }
-    if (v->y < 0.0) {
-        v->y = 0.0;
-    }
-    if (v->y > 1.0) {
-        v->y = 1.0;
-    }
-    if (v->z < 0.0) {
-        v->z = 0.0;
-    }
-    if (v->z > 1.0) {
-        v->z = 1.0;
-    }
-}

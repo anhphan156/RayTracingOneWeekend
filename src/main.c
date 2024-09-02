@@ -1,14 +1,13 @@
 #include "base64_helper.h"
-#include "ray.h"
-#include "vec3.h"
-#include <math.h>
+#include "hittable/hitrecord.h"
+#include "hittable/sphere.h"
+#include "usefulfn.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 #define CHUNK_SIZE 4096
 
-float hit_sphere(vec3 sphere_center, float radius, ray r);
-vec3  frag_color(ray r);
+vec3 frag_color(ray *r);
 
 int main() {
 
@@ -36,7 +35,7 @@ int main() {
 
             r.direction = subtract(uv, r.origin);
 
-            vec3 color = frag_color(r);
+            vec3 color = frag_color(&r);
 
             clamp01(&color);
 
@@ -73,41 +72,29 @@ int main() {
     return 0;
 }
 
-vec3 frag_color(ray r) {
+vec3 frag_color(ray *r) {
 
-    vec3  sphere_center = ((vec3){.0, .0, .0});
-    float radius        = .3;
+    sphere s;
+    s.c = ((vec3){.0, .0, .0});
+    s.r = .2;
 
-    vec3  color;
-    float t = hit_sphere(sphere_center, radius, r);
+    hit_record rec;
+    char       hit = sphere_hit(&s, r, -2.0, 2.0, &rec);
 
-    if (t < 0) {
+    if (hit == 0) {
 
-        color.x = r.direction.x;
-        color.y = r.direction.y;
-        color.z = 0.0;
+        vec3 blue;
+        blue.x = .5;
+        blue.y = .6;
+        blue.z = .8;
 
-        return color;
+        vec3 white;
+        white.x = .9;
+        white.y = .9;
+        white.z = .9;
+
+        return mix(blue, white, r->direction.y);
     }
 
-    vec3 p = at(r, t);
-    vec3 n = normalize(subtract(sphere_center, p));
-    n      = add(((vec3){.5, .5, .5}), scale(n, .5));
-
-    return n;
-}
-
-float hit_sphere(vec3 sphere_center, float radius, ray r) {
-    vec3 oc = subtract(sphere_center, r.origin);
-
-    float a    = dot(r.direction, r.direction);
-    float h    = dot(r.direction, oc);
-    float c    = dot(oc, oc) - radius * radius;
-    float disc = h * h - a * c;
-
-    if (disc < 0) {
-        return -1.0;
-    } else {
-        return (h - sqrt(disc)) / a;
-    }
+    return subtract(((vec3){.5, .5, .5}), scale(rec.n, .5));
 }
