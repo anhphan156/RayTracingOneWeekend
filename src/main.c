@@ -74,14 +74,27 @@ int main() {
 
 vec3 frag_color(ray *r) {
 
-    sphere s;
-    s.c = ((vec3){.0, .0, .0});
-    s.r = .2;
+    sphere s[2];
+    s[0].c = ((vec3){.0, .0, .0});
+    s[0].r = .2;
+    s[1].c = ((vec3){.0, 6.0, 2.5});
+    s[1].r = 6.0;
 
     hit_record rec;
-    char       hit = sphere_hit(&s, r, -2.0, 2.0, &rec);
+    char       hit_anything = 0;
+    float      closest      = 2.0;
+    for (int i = 0; i < 2; i += 1) {
 
-    if (hit == 0) {
+        hit_record rec_tmp;
+        char       hit = sphere_hit(s + i, r, -2.0, closest, &rec_tmp);
+        if (hit) {
+            hit_anything = 1;
+            closest      = rec_tmp.t;
+            rec          = rec_tmp;
+        }
+    }
+
+    if (hit_anything == 0) {
 
         vec3 blue;
         blue.x = .5;
